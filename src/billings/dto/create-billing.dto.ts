@@ -3,15 +3,15 @@ import {
   IsDateString,
   IsInt,
   IsNumber,
+  IsOptional,
+  IsUUID,
   Max,
   Min,
 } from 'class-validator';
 
 export class CreateBillingDto {
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  electricity_account_id: number;
+  @IsUUID('4')
+  subscription_id: string;
 
   @Type(() => Number)
   @IsInt()
@@ -24,15 +24,11 @@ export class CreateBillingDto {
   @Min(2000)
   period_year: number;
 
+  @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  previous_meter: number;
-
-  @Type(() => Number)
-  @IsNumber()
-  @Min(0)
-  current_meter: number;
+  amount?: number;
 
   @IsDateString()
   due_date: string;

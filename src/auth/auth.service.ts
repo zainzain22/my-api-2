@@ -70,7 +70,7 @@ export class AuthService {
     return { user: safeUser, access_token: await this.signToken(safeUser) };
   }
 
-  private signToken(user: { id: number; email: string; role: Role }) {
+  private signToken(user: { id: string; email: string; role: Role }) {
     return this.jwtService.signAsync({
       sub: user.id,
       email: user.email,

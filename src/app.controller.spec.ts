@@ -18,7 +18,7 @@ describe('AppController', () => {
     it('should return health payload', () => {
       const result = appController.health();
       expect(result.success).toBe(true);
-      expect(result.data.name).toBe('Electricity Bill Payment System');
+      expect(result.data.name).toBe('Internet Billing System');
     });
   });
 });

@@ -3,9 +3,10 @@ import {
   Controller,
   Get,
   Param,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -18,6 +19,8 @@ import {
 } from '../common/decorators/current-user.decorator.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
 import { success } from '../common/http.js';
+import { ListPaymentsQueryDto } from './dto/list-payments.query.js';
+import { UploadPaymentDto } from './dto/upload-payment.dto.js';
 import { VerifyPaymentDto } from './dto/verify-payment.dto.js';
 import { PaymentsService } from './payments.service.js';
 
@@ -35,23 +38,26 @@ export class PaymentsController {
   )
   async upload(
     @CurrentUser() user: AuthUser,
-    @Body('billing_id', ParseIntPipe) billingId: number,
+    @Body() dto: UploadPaymentDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const data = await this.payments.uploadProof(user, billingId, file);
+    const data = await this.payments.uploadProof(user, dto.billing_id, file);
     return success(data, 'Bukti pembayaran diunggah');
   }
 
   @Get()
-  async findAll(@CurrentUser() user: AuthUser) {
-    const data = await this.payments.findAll(user);
+  async findAll(
+    @CurrentUser() user: AuthUser,
+    @Query() query: ListPaymentsQueryDto,
+  ) {
+    const data = await this.payments.findAll(user, query.status);
     return success(data, 'Daftar pembayaran');
   }
 
   @Get(':id')
   async findOne(
     @CurrentUser() user: AuthUser,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
     const data = await this.payments.findOne(user, id);
     return success(data, 'Detail pembayaran');
@@ -61,7 +67,7 @@ export class PaymentsController {
   @Patch(':id/verify')
   async verify(
     @CurrentUser() user: AuthUser,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() dto: VerifyPaymentDto,
   ) {
     const data = await this.payments.verify(user, id, dto.action);

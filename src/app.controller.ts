@@ -11,7 +11,7 @@ export class AppController {
   @Get()
   health() {
     return success(
-      { name: 'Electricity Bill Payment System' },
+      { name: 'Internet Billing System' },
       this.appService.getHello(),
     );
   }

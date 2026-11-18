@@ -11,8 +11,8 @@ import { FileStorageModule } from './file-storage/file-storage.module.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { RolesGuard } from './common/guards/roles.guard.js';
 import { UsersModule } from './users/users.module.js';
-import { ElectricityServicesModule } from './electricity-services/electricity-services.module.js';
-import { ElectricityAccountsModule } from './electricity-accounts/electricity-accounts.module.js';
+import { ServiceProvidersModule } from './service-providers/service-providers.module.js';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module.js';
 import { BillingsModule } from './billings/billings.module.js';
 import { PaymentsModule } from './payments/payments.module.js';
 
@@ -26,8 +26,8 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     FileStorageModule,
     AuthModule,
     UsersModule,
-    ElectricityServicesModule,
-    ElectricityAccountsModule,
+    ServiceProvidersModule,
+    SubscriptionsModule,
     BillingsModule,
     PaymentsModule,
     ObserveModule.forRoot({

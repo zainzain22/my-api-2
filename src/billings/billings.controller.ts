@@ -4,7 +4,7 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -39,7 +39,7 @@ export class BillingsController {
   @Get(':id')
   async findOne(
     @CurrentUser() user: AuthUser,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
     const data = await this.billings.findOne(user, id);
     return success(data, 'Detail tagihan');
@@ -48,7 +48,7 @@ export class BillingsController {
   @Roles(Role.ADMIN)
   @Patch(':id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() dto: UpdateBillingDto,
   ) {
     const data = await this.billings.update(id, dto);
@@ -57,7 +57,7 @@ export class BillingsController {
 
   @Roles(Role.ADMIN)
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number) {
+  async remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     const data = await this.billings.remove(id);
     return success(data, 'Tagihan dihapus');
   }

@@ -8,24 +8,24 @@ import {
   Min,
 } from 'class-validator';
 
-export class CreateElectricityServiceDto {
-  @IsString()
-  @IsNotEmpty()
-  code: string;
-
+export class CreateServiceProviderDto {
   @IsString()
   @IsNotEmpty()
   name: string;
 
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+
   @Type(() => Number)
   @IsNumber()
   @Min(1)
-  power_va: number;
+  speed: number;
 
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  price_per_kwh: number;
+  price_per_month: number;
 
   @IsOptional()
   @IsBoolean()

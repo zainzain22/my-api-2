@@ -17,7 +17,14 @@ import { PrismaService } from '../prisma/prisma.service.js';
 const paymentInclude = {
   billing: {
     include: {
-      electricity_account: true,
+      subscription: {
+        include: {
+          service_provider: true,
+          user: {
+            select: { id: true, name: true, email: true },
+          },
+        },
+      },
     },
   },
   verifier: {
@@ -40,21 +47,25 @@ export class PaymentsService {
     private readonly files: FileStorageService,
   ) {}
 
-  async uploadProof(user: AuthUser, billingId: number, file?: Express.Multer.File) {
+  async uploadProof(user: AuthUser, billingId: string, file?: Express.Multer.File) {
     this.assertFile(file);
 
     const billing = await this.prisma.billing.findUnique({
       where: { id: billingId },
-      include: { electricity_account: true, payment: true },
+      include: { subscription: true, payment: true },
     });
     if (!billing) {
       throw new NotFoundException('Tagihan tidak ditemukan');
     }
-    if (billing.electricity_account.user_id !== user.id) {
-      throw new ForbiddenException('Anda hanya dapat membayar tagihan milik sendiri');
+    if (billing.subscription.user_id !== user.id) {
+      throw new ForbiddenException(
+        'Anda hanya dapat membayar tagihan milik sendiri',
+      );
     }
     if (billing.status === BillingStatus.PAID) {
-      throw new ConflictException('Tagihan yang sudah lunas tidak dapat dibayar ulang');
+      throw new ConflictException(
+        'Tagihan yang sudah lunas tidak dapat dibayar ulang',
+      );
     }
     if (billing.status !== BillingStatus.UNPAID) {
       throw new ConflictException(
@@ -92,18 +103,20 @@ export class PaymentsService {
     return payment;
   }
 
-  findAll(user: AuthUser) {
+  findAll(user: AuthUser, status?: PaymentStatus) {
     return this.prisma.payment.findMany({
-      where:
-        user.role === Role.ADMIN
-          ? undefined
-          : { billing: { electricity_account: { user_id: user.id } } },
+      where: {
+        ...(status ? { status } : {}),
+        ...(user.role === Role.ADMIN
+          ? {}
+          : { billing: { subscription: { user_id: user.id } } }),
+      },
       include: paymentInclude,
-      orderBy: { id: 'desc' },
+      orderBy: { created_at: 'desc' },
     });
   }
 
-  async findOne(user: AuthUser, id: number) {
+  async findOne(user: AuthUser, id: string) {
     const payment = await this.prisma.payment.findUnique({
       where: { id },
       include: paymentInclude,
@@ -113,14 +126,14 @@ export class PaymentsService {
     }
     if (
       user.role !== Role.ADMIN &&
-      payment.billing.electricity_account.user_id !== user.id
+      payment.billing.subscription.user_id !== user.id
     ) {
       throw new ForbiddenException('Anda tidak dapat mengakses pembayaran ini');
     }
     return payment;
   }
 
-  async verify(admin: AuthUser, id: number, action: 'APPROVE' | 'REJECT') {
+  async verify(admin: AuthUser, id: string, action: 'APPROVE' | 'REJECT') {
     const payment = await this.prisma.payment.findUnique({
       where: { id },
     });
@@ -128,12 +141,14 @@ export class PaymentsService {
       throw new NotFoundException('Pembayaran tidak ditemukan');
     }
     if (payment.status !== PaymentStatus.PENDING) {
-      throw new ConflictException('Hanya pembayaran PENDING yang dapat diverifikasi');
+      throw new ConflictException(
+        'Hanya pembayaran PENDING yang dapat diverifikasi',
+      );
     }
 
     const approved = action === 'APPROVE';
 
-    const updated = await this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx) => {
       const result = await tx.payment.update({
         where: { id },
         data: {
@@ -153,11 +168,11 @@ export class PaymentsService {
 
       return result;
     });
-
-    return updated;
   }
 
-  private assertFile(file?: Express.Multer.File): asserts file is Express.Multer.File {
+  private assertFile(
+    file?: Express.Multer.File,
+  ): asserts file is Express.Multer.File {
     if (!file) {
       throw new BadRequestException('File bukti pembayaran wajib diunggah');
     }

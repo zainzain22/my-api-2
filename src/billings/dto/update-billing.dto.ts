@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsDateString,
+  IsInt,
   IsNumber,
   IsOptional,
   Max,
@@ -10,12 +11,14 @@ import {
 export class UpdateBillingDto {
   @IsOptional()
   @Type(() => Number)
+  @IsInt()
   @Min(1)
   @Max(12)
   period_month?: number;
 
   @IsOptional()
   @Type(() => Number)
+  @IsInt()
   @Min(2000)
   period_year?: number;
 
@@ -23,13 +26,7 @@ export class UpdateBillingDto {
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  previous_meter?: number;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(0)
-  current_meter?: number;
+  amount?: number;
 
   @IsOptional()
   @IsDateString()

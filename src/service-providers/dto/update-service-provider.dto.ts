@@ -7,26 +7,26 @@ import {
   Min,
 } from 'class-validator';
 
-export class UpdateElectricityServiceDto {
-  @IsOptional()
-  @IsString()
-  code?: string;
-
+export class UpdateServiceProviderDto {
   @IsOptional()
   @IsString()
   name?: string;
 
   @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(1)
-  power_va?: number;
+  speed?: number;
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  price_per_kwh?: number;
+  price_per_month?: number;
 
   @IsOptional()
   @IsBoolean()
