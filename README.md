@@ -23,13 +23,40 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+REST API **Internet Billing System** (UUK Backend P2).
 
-## Project setup
+Setelah clone, error merah di VS Code (`Cannot find module '@nestjs/common'`, `multer`, `generated/prisma`) itu normal: `node_modules` dan Prisma Client **tidak** ikut di GitHub.
+
+## Setup setelah clone
 
 ```bash
-$ npm install
+cd my-api-2
+npm install
 ```
+
+`npm install` juga menjalankan `prisma generate` (script `postinstall`).
+
+Buat file `.env` (tidak ikut ter-clone):
+
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://USER:PASSWORD@HOST:5432/postgres"
+JWT_SECRET="ganti-secret"
+JWT_EXPIRES_IN=86400
+PORT=3000
+```
+
+Lalu:
+
+```bash
+npx prisma migrate deploy
+npm run db:seed
+npm run start:dev
+```
+
+Panduan uji Postman: lihat `TESTING-P2.md`.
+
+Akun seed: `admin@isp.test` / `Admin123!` dan `customer@isp.test` / `Customer123!`.
 
 ## Compile and run the project
 
